@@ -17,7 +17,7 @@ volatile bool Arry1Ready = false;
 volatile bool Arry2Ready = false;
 volatile int ActiveArry = 1;
 int numberOfSample = 0;
-const int totalNumOfSample = 10;
+const int totalNumOfSample = 200;
 
 const int voltage_pin = 34;
 const int Sample_pin = 14;
@@ -89,28 +89,31 @@ timerAlarmEnable(MyTimer);
 void loop() {
   digitalWrite(Led_pin, HIGH);
   if (Arry1Ready == true){
-    Serial.print("start");
+    Serial.println("start");
     for (int i = 0; i<Arr_size-1; i++){
       Serial.print(Arry1[i]);
       Serial.print(",");
     }
     Serial.println();
+    Serial.println("sample end");
     Arry1Ready = false;
     numberOfSample++;
   }
   if (Arry2Ready == true){
-    Serial.print("start");
+    Serial.println("start");
     for (int i = 0; i<Arr_size-1; i++){
       Serial.print(Arry2[i]);
       Serial.print(",");
     }
     Serial.println();
+    Serial.println("sample end");
     Arry2Ready = false;
     numberOfSample++;
   }
 
   if (numberOfSample == totalNumOfSample){
     timerAlarmDisable(MyTimer);
+    Serial.println();
     Serial.println("DONE");
     digitalWrite(Led_pin, LOW);
     while(1);
