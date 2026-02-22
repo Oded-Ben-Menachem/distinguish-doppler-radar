@@ -17,7 +17,7 @@ volatile bool Arry1Ready = false;
 volatile bool Arry2Ready = false;
 volatile int ActiveArry = 1;
 int numberOfSample = 0;
-const int totalNumOfSample = 200;
+const int totalNumOfSample = 1000;
 
 const int voltage_pin = 34;
 const int Sample_pin = 14;
