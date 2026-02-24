@@ -2,7 +2,6 @@
 #include <vector>
 #include <WiFi.h>
 
-
 /* Pointer Declaration:
    'hw_timer_t' is a structure that represents the hardware timer.
    The '*' means this is a pointer. It will hold the memory address 
@@ -17,11 +16,12 @@ volatile bool Arry1Ready = false;
 volatile bool Arry2Ready = false;
 volatile int ActiveArry = 1;
 int numberOfSample = 0;
-const int totalNumOfSample = 1000;
+const int totalNumOfSample = 100;
 
 const int voltage_pin = 34;
 const int Sample_pin = 14;
-const int Led_pin = 33;
+const int Led_pin1 = 33;
+const int Led_pin2 = 32;
 // The interpt function
 //'ARDUINO_ISR_ATTR' ensures this code is stored in IRAM (fast RAM)
 //   so the CPU can jump to it instantly without lag.
@@ -53,7 +53,8 @@ void setup() {
 Serial.begin(921600);
 pinMode(voltage_pin,OUTPUT);
 pinMode(Sample_pin, INPUT);
-pinMode(Led_pin, OUTPUT);
+pinMode(Led_pin1, OUTPUT);
+pinMode(Led_pin2, OUTPUT);
 WiFi.mode(WIFI_OFF);
 
 /*  timerBegin(timer_num, prescaler, count_up):
@@ -87,37 +88,29 @@ timerAlarmEnable(MyTimer);
 }
 
 void loop() {
-  digitalWrite(Led_pin, HIGH);
+  //digitalWrite(Led_pin1, HIGH);
   if (Arry1Ready == true){
-    Serial.println("start");
-    for (int i = 0; i<Arr_size-1; i++){
-      Serial.print(Arry1[i]);
-      Serial.print(",");
-    }
-    Serial.println();
-    Serial.println("sample end");
+    Serial.write(0xAA);
+    Serial.write(0xBB);
+    Serial.write((uint8_t*)Arry1,Arr_size * 2);
+    
+    Serial.write(0xCC);
+    Serial.write(0xDD);
     Arry1Ready = false;
-    numberOfSample++;
-  }
-  if (Arry2Ready == true){
-    Serial.println("start");
-    for (int i = 0; i<Arr_size-1; i++){
-      Serial.print(Arry2[i]);
-      Serial.print(",");
     }
-    Serial.println();
-    Serial.println("sample end");
+  
+  if (Arry2Ready == true){
+    Serial.write(0xAA);
+    Serial.write(0xBB);
+    Serial.write((uint8_t*)Arry2,Arr_size * 2);
+    
+    Serial.write(0xCC);
+    Serial.write(0xDD);
     Arry2Ready = false;
-    numberOfSample++;
-  }
-
-  if (numberOfSample == totalNumOfSample){
-    timerAlarmDisable(MyTimer);
-    Serial.println();
-    Serial.println("DONE");
-    digitalWrite(Led_pin, LOW);
-    while(1);
+    }
   }
 
 
-}
+  
+
+
