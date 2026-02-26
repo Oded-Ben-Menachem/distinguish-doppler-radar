@@ -21,7 +21,7 @@ const int totalNumOfSample = 100;
 const int voltage_pin = 34;
 const int Sample_pin = 14;
 const int Led_pin1 = 33;
-const int Led_pin2 = 32;
+const int Led_pin2 = 25;
 // The interpt function
 //'ARDUINO_ISR_ATTR' ensures this code is stored in IRAM (fast RAM)
 //   so the CPU can jump to it instantly without lag.
@@ -107,6 +107,21 @@ void loop() {
     Serial.write(0xCC);
     Serial.write(0xDD);
     Arry2Ready = false;
+    }
+
+    if (Serial.available()>0){
+      char read_comming = Serial.read();
+      if (read_comming == 'T'){
+        digitalWrite(Led_pin1, HIGH);
+        delay(3000);
+        digitalWrite(Led_pin1, LOW);
+      }
+      if (read_comming == 'S'){
+        digitalWrite(Led_pin2, HIGH);
+        delay(3000);
+        digitalWrite(Led_pin2, LOW);
+
+      }
     }
   }
 
