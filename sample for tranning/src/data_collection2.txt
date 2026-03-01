@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <vector>
+#include <cstring>
 #include <WiFi.h>
+
 
 /* Pointer Declaration:
    'hw_timer_t' is a structure that represents the hardware timer.
@@ -16,12 +18,12 @@ volatile bool Arry1Ready = false;
 volatile bool Arry2Ready = false;
 volatile int ActiveArry = 1;
 int numberOfSample = 0;
-const int totalNumOfSample = 100;
+
+const int totalNumOfSample = 200;
 
 const int voltage_pin = 34;
 const int Sample_pin = 14;
-const int Led_pin1 = 33;
-const int Led_pin2 = 25;
+const int Led_pin = 33;
 // The interpt function
 //'ARDUINO_ISR_ATTR' ensures this code is stored in IRAM (fast RAM)
 //   so the CPU can jump to it instantly without lag.
@@ -34,16 +36,18 @@ void ARDUINO_ISR_ATTR onTimer(){
     Arry2[sampleIndex] = sample;
   }
   sampleIndex ++;
-  if (sampleIndex == Arr_size - 1){
+  if (sampleIndex == Arr_size){
     if (ActiveArry == 1){
       ActiveArry = 2;
       Arry1Ready = true;
+//      memcpy((void*)Arry2,(void*)&Arry1[Arr_size/2], Arr_size/2 * sizeof(uint16_t));
     }
     else{
       ActiveArry = 1;
       Arry2Ready = true;
+//      memcpy((void*)Arry1,(void*)&Arry2[Arr_size/2], Arr_size/2 * sizeof(uint16_t));
     }
-    sampleIndex = 0;
+    sampleIndex = 0;//Arr_size/2;
   }
   
 }
@@ -53,8 +57,7 @@ void setup() {
 Serial.begin(921600);
 pinMode(voltage_pin,OUTPUT);
 pinMode(Sample_pin, INPUT);
-pinMode(Led_pin1, OUTPUT);
-pinMode(Led_pin2, OUTPUT);
+pinMode(Led_pin, OUTPUT);
 WiFi.mode(WIFI_OFF);
 
 /*  timerBegin(timer_num, prescaler, count_up):
@@ -88,17 +91,17 @@ timerAlarmEnable(MyTimer);
 }
 
 void loop() {
-  //digitalWrite(Led_pin1, HIGH);
+  digitalWrite(Led_pin, HIGH);
   if (Arry1Ready == true){
     Serial.write(0xAA);
     Serial.write(0xBB);
     Serial.write((uint8_t*)Arry1,Arr_size * 2);
-    
+
     Serial.write(0xCC);
     Serial.write(0xDD);
     Arry1Ready = false;
-    }
-  
+    numberOfSample++;
+  }
   if (Arry2Ready == true){
     Serial.write(0xAA);
     Serial.write(0xBB);
@@ -107,26 +110,17 @@ void loop() {
     Serial.write(0xCC);
     Serial.write(0xDD);
     Arry2Ready = false;
-    }
+    numberOfSample++;
+  }
 
-    if (Serial.available()>0){
-      char read_comming = Serial.read();
-      if (read_comming == 'T'){
-        digitalWrite(Led_pin1, HIGH);
-        delay(3000);
-        digitalWrite(Led_pin1, LOW);
-      }
-      if (read_comming == 'S'){
-        digitalWrite(Led_pin2, HIGH);
-        delay(3000);
-        digitalWrite(Led_pin2, LOW);
-
-      }
-    }
+  if (numberOfSample == totalNumOfSample){
+    timerAlarmDisable(MyTimer);
+    Serial.println();
+    Serial.println("DONE");
+    digitalWrite(Led_pin, LOW);
+    while(1);
   }
 
 
-  
-
-
+}
 
