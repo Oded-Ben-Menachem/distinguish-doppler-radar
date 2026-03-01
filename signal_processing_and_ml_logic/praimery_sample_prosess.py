@@ -6,7 +6,7 @@ SAMPLING_INTERVAL = 200e-6
 port = 'COM3'
 serial_speed = 921600
 samples_num = 1024
-samples_amount = 200
+samples_amount = 20
 
 np.set_printoptions(suppress=True, precision=4)
 
